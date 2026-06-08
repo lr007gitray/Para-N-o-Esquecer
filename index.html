@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diário de Reavivamento</title>
+
+<style>
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    background: #111;
+    color: #fff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    max-width: 700px;
+    margin: auto;
+    padding: 15px;
+    padding-bottom: 60px;
+}
+.topo {
+    text-align: center;
+    margin: 25px 0;
+}
+.topo h1 {
+    font-size: 2.2rem;
+    color: #f39c12;
+    margin-bottom: 5px;
+}
+.topo p {
+    font-size: 1rem;
+    color: #bbb;
+    letter-spacing: 1px;
+}
+
+/* Painel do Player de Áudio - Barra Deslizante Horizontal */
+.player-container {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 20px;
+    position: sticky;
+    top: 15px;
+    z-index: 999;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+    margin-bottom: 30px;
+}
+
+.barra-progresso-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.tempo {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-family: monospace;
+    min-width: 45px;
+}
+
+/* Customização da Barra Deslizante (Range) */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #444;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #f39c12;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(243, 156, 18, 0.7);
+    transition: transform 0.1s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* Botões na horizontal */
+.controles {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+button {
+    flex: 1;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 5px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    background: #333;
+    color: #fff;
+}
+
+button:hover {
+    background: #444;
+    transform: translateY(-2px);
+}
+
+button.btn-ouvir {
+    background: #f39c12;
+    color: #111;
+}
+button.btn-ouvir:hover {
+    background: #e67e22;
+}
+
+/* Estilização das Imagens */
+img {
+    width: 100%;
+    display: block;
+    margin: 25px auto;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    border: 1px solid #222;
+}
+
+footer {
+    text-align: center;
+    padding: 40px 0 20px 0;
+    opacity: .6;
+    font-size: 0.9rem;
+    border-top: 1px solid #222;
+    margin-top: 40px;
+}
+</style>
+</head>
+<body>
+
+<div class="topo">
+    <h1>📖 Diário de Reavivamento</h1>
+    <p>Meditação Digital</p>
+</div>
+
+<div class="player-container">
+    <div class="barra-progresso-wrapper">
+        <span class="tempo" id="tempo-atual">00:00</span>
+        <input type="range" id="barra-progresso" value="0" min="0" max="100" step="1">
+        <span class="tempo" id="tempo-total">00:00</span>
+    </div>
+    
+    <div class="controles">
+        <button class="btn-ouvir" id="btn-play-pause" onclick="controlarPlayPause()">▶️ Ouvir</button>
+        <button onclick="pararAudio()">⏹️ Parar</button>
+    </div>
+</div>
+
+<img src="capa.png" alt="Capa">
+<img src="img1.png" alt="Imagem 1">
+<img src="img2.png" alt="Imagem 2">
+<img src="img3.png" alt="Imagem 3">
+<img src="img4.png" alt="Imagem 4">
+
+<footer>
+    🕊️ Diário de Reavivamento
+</footer>
+
+<script>
+// O código agora busca AUTOMATICAMENTE o arquivo chamado 'devocional.mp3' na mesma pasta!
+const audioMp3 = new Audio('devocional.mp3'); 
+
+const barra = document.getElementById('barra-progresso');
+const tempoAtualTxt = document.getElementById('tempo-atual');
+const tempoTotalTxt = document.getElementById('tempo-total');
+const btnPlayPause = document.getElementById('btn-play-pause');
+
+function formatarTempo(segundos) {
+    if (isNaN(segundos)) return "00:00";
+    let mins = Math.floor(segundos / 60);
+    let segs = Math.floor(segundos % 60);
+    if (mins < 10) mins = "0" + mins;
+    if (segs < 10) segs = "0" + segs;
+    return mins + ":" + segs;
+}
+
+// Quando o navegador carregar o arquivo devocional.mp3 da pasta, ajusta a barra
+audioMp3.addEventListener('loadedmetadata', () => {
+    tempoTotalTxt.innerText = formatarTempo(audioMp3.duration);
+    barra.max = Math.floor(audioMp3.duration);
+});
+
+// Atualiza a barra conforme o áudio toca sozinho
+audioMp3.addEventListener('timeupdate', () => {
+    barra.value = Math.floor(audioMp3.currentTime);
+    tempoAtualTxt.innerText = formatarTempo(audioMp3.currentTime);
+});
+
+// Quando o áudio acabar
+audioMp3.addEventListener('ended', () => {
+    btnPlayPause.innerHTML = '▶️ Ouvir';
+    barra.value = 0;
+    tempoAtualTxt.innerText = "00:00";
+});
+
+barra.addEventListener('input', (e) => {
+    tempoAtualTxt.innerText = formatarTempo(e.target.value);
+});
+
+barra.addEventListener('change', (e) => {
+    audioMp3.currentTime = e.target.value;
+});
+
+function controlarPlayPause() {
+    if (audioMp3.paused) {
+        audioMp3.play().catch(erro => {
+            alert("Erro: Certifique-se de que o arquivo 'devocional.mp3' está na mesma pasta do seu index.html!");
+        });
+        btnPlayPause.innerHTML = '⏸️ Pausar';
+    } else {
+        audioMp3.pause();
+        btnPlayPause.innerHTML = '▶️ Seguir';
+    }
+}
+
+function pararAudio() {
+    btnPlayPause.innerHTML = '▶️ Ouvir';
+    barra.value = 0;
+    tempoAtualTxt.innerText = '00:00';
+    audioMp3.pause();
+    audioMp3.currentTime = 0;
+}
+</script>
+
+</body>
+</html>
+
